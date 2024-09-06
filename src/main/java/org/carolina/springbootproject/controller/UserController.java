@@ -2,11 +2,14 @@ package org.carolina.springbootproject.controller;
 
 import org.carolina.springbootproject.model.User;
 import org.carolina.springbootproject.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+//import javax.validation.*;
+import jakarta.validation.*;
 import java.util.List;
 
 @RestController
@@ -17,28 +20,31 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public String registerUser(@Valid @RequestBody User user, BindingResult result) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user, BindingResult result) {
         if (result.hasErrors()) {
-            return "Registration failed: " + result.getAllErrors().get(0).getDefaultMessage();
+            return ResponseEntity.badRequest().body(result.getAllErrors());
         }
-        user.setRole("USER");
-        userService.saveUser(user);
-        return "User registered successfully";
-    }
-
-    @GetMapping("/all")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+        return ResponseEntity.ok(userService.saveUser(user));
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userService.getUserById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<?> getUser(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(userService.findUserById(id, authentication));
+    }
+
+    @GetMapping
+    public List<User> getAllUsers(Authentication authentication) {
+        return userService.findAllUsers(authentication);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody User user, Authentication authentication) {
+        return ResponseEntity.ok(userService.updateUser(id, user, authentication));
     }
 
     @DeleteMapping("/{id}")
-    public String deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return "User deleted";
+    public ResponseEntity<?> deleteUser(@PathVariable Long id, Authentication authentication) {
+        userService.deleteUser(id, authentication);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

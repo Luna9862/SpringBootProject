@@ -1,0 +1,4 @@
+Once the application is running, you can test it by using tools like Postman or cURL to interact with the exposed endpoints. 
+Start by registering a user by sending a POST request to the registration endpoint (e.g., /register). Ensure the request body includes valid user data (like username, password, and role) and that input validation is working correctly. 
+After successful registration, log in using the credentials and check if you can access restricted endpoints based on your role. If testing as an ADMIN, verify that you can retrieve the list of all users, while regular users should only be able to view or update their own details. 
+You can also test the custom validation and exception handling by intentionally submitting invalid data (e.g., weak passwords) or attempting unauthorized actions to confirm meaningful error messages are returned.
